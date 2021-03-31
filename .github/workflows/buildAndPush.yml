@@ -1,6 +1,7 @@
 name: Build and Push Frps
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 jobs:
