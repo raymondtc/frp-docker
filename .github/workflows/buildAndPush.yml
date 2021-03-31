@@ -49,8 +49,8 @@ jobs:
           context: frps
           build-args:
           tags: |
-            ${DOCKERHUB_REPO_FRPS}:latest
-            ${DOCKERHUB_REPO_FRPS}:${{ env.frp_version }}
+            ${{ env.DOCKERHUB_REPO_FRPS }}:latest
+            ${{ env.DOCKERHUB_REPO_FRPS }}:${{ env.frp_version }}
             ghcr.io/raymondtc/frps:latest
             ghcr.io/raymondtc/frps:${{ env.frp_version }}
           push: true
