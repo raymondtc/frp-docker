@@ -1,6 +1,9 @@
 name: Build and Push Frps
 
 on:
+  push:
+    branches:    
+      - main
   workflow_dispatch:
   release:
     types: [published]
