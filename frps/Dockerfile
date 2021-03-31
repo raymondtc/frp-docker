@@ -1,0 +1,35 @@
+FROM ubuntu:focal
+
+LABEL maintainer="raymondtc"
+
+ARG FRP_VERSION=0.36.2
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY entrypoint.sh /
+
+RUN \
+ chmod +x /entrypoint.sh && \
+ echo "**** install packages ****" && \
+ apt-get update && \
+ apt-get install -y \
+    curl && \
+ echo "**** install frp ****" && \
+ mkdir -p /app/frp/bin /tmp/frp && \
+ curl -Lo \
+    /tmp/frp.tar.gz \
+    "https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_arm64.tar.gz" && \
+ tar xf \
+    /tmp/frp.tar.gz -C \
+    /tmp/frp --strip-components=1 && \
+ mv /tmp/frp/frps /app/frp/bin && \
+ rm -rf /tmp/frp
+
+
+COPY frps.ini /app/frp/
+
+VOLUME [ "/data" ]
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+
+CMD [ "/app/frp/bin/frps", "-c", "/data/frps.ini" ]
