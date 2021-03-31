@@ -18,7 +18,7 @@ Compatible with docker-compose v2 schemas.
 ---
 version: "2.1"
 services:
-  sonarr:
+  frps:
     image: raymond17/frps
     container_name: frps
     network_mode: host
