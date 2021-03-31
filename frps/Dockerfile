@@ -14,6 +14,7 @@ RUN \
  apt-get update && \
  apt-get install -y \
     curl && \
+    rm -rf /var/lib/apt/lists/* && \
  echo "**** install frp ****" && \
  mkdir -p /app/frp/bin /tmp/frp && \
  curl -Lo \
