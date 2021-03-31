@@ -18,12 +18,12 @@ RUN \
  mkdir -p /app/frp/bin /tmp/frp && \
  curl -Lo \
     /tmp/frp.tar.gz \
-    "https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_arm64.tar.gz" && \
+    "https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_amd64.tar.gz" && \
  tar xf \
     /tmp/frp.tar.gz -C \
     /tmp/frp --strip-components=1 && \
  mv /tmp/frp/frps /app/frp/bin && \
- rm -rf /tmp/frp
+ rm -rf /tmp/frp /tmp/frp.tar.gz
 
 
 COPY frps.ini /app/frp/
