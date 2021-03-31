@@ -1,5 +1,4 @@
 name: Build and Push Frps
-
 on:
   push:
     branches:    
@@ -9,20 +8,26 @@ on:
     types: [published]
   schedule:
     - cron: '0 20 * * *'
+
+env:
+  DOCKERHUB_REPO_FRPS: raymond17/frps
+  DOCKERHUB_REPO_FRPC: raymond17/frpc
+
 jobs:   
   push_to_registries:
     name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
     steps:
-      - name: Get Latest Frp Version
+      - name: Get frp latest version and check if tag exists
         run: |
-          echo "frp_version=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep -oP '"tag_name": "v\K(.*)(?=")')" >> $GITHUB_ENV
+          FRP_VERSION=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep -oP '"tag_name": "v\K(.*)(?=")')
+          echo "frp_version=${FRP_VERSION}" >> $GITHUB_ENV
           TOKEN=$( curl -sSLd "username=${{ secrets.DOCKERHUB_USERNAME }}&password=${{ secrets.DOCKERHUB_TOKEN }}" https://hub.docker.com/v2/users/login | jq -r ".token" )
-          TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/raymond17/frps/tags/latest/" | jq . | grep tag_status | grep active | wc -l)
-          echo "tag_exits=$TAG_EXISTS" >> $GITHUB_ENV
+          TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPS }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
+          echo "tag_exists=$TAG_EXISTS" >> $GITHUB_ENV
       - name: Check out the repo
         uses: actions/checkout@v2
-        if: ${{ env.tag_exits != '1' }}
+        if: ${{ env.tag_exists != '1' }}
       - name: Test
         run: env
       - name: Login to DockerHub
@@ -30,23 +35,23 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        if: ${{ env.tag_exits != '1' }}
+        if: ${{ env.tag_exists != '1' }}
       - name: Login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ env.tag_exits != '1' }}
+        if: ${{ env.tag_exists != '1' }}
       - name: Build and Push
         uses: docker/build-push-action@v2
         with:
           context: frps
           build-args:
           tags: |
-            raymond17/frps:latest
-            raymond17/frps:${{ env.frp_version }}
+            ${DOCKERHUB_REPO_FRPS}:latest
+            ${DOCKERHUB_REPO_FRPS}:${{ env.frp_version }}
             ghcr.io/raymondtc/frps:latest
             ghcr.io/raymondtc/frps:${{ env.frp_version }}
           push: true
-        if: ${{ env.tag_exits != '1' }}
+        if: ${{ env.tag_exists != '1' }}
