@@ -1,4 +1,4 @@
-name: Build and Push Frps
+name: Build and Push Frp
 on:
   push:
     branches:    
@@ -35,14 +35,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        if: ${{ env.frps_tag_exists != '1' || }}
+        if: ${{ env.frps_tag_exists != '1' }}
       - name: Login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ env.frps_tag_exists != '1' || }}
+        if: ${{ env.frps_tag_exists != '1' }}
       - name: Build and Push Frps
         uses: docker/build-push-action@v2
         with:
