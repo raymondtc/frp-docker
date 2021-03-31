@@ -8,7 +8,7 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '*/0 20 * * *'
+    - cron: '0 20 * * *'
 jobs:
   check_if_exists:
     name: Check if tag exists
