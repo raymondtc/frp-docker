@@ -71,3 +71,19 @@ jobs:
             ghcr.io/raymondtc/frpc:${{ env.frp_version }}
           push: true
         if: ${{ env.frpc_tag_exists != '1' }}
+      - name: Frps Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ env.DOCKERHUB_REPO_FRPS }}
+          readme-filepath: ./frps/README.md
+        if: ${{ env.frps_tag_exists != '1' }}
+      - name: Frpc Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ env.DOCKERHUB_REPO_FRPC }}
+          readme-filepath: ./frpc/README.md
+        if: ${{ env.frpc_tag_exists != '1' }}
