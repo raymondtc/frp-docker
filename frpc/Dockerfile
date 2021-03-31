@@ -27,9 +27,6 @@ RUN \
  mv /tmp/frp/frpc.ini /tmp/frp/frpc_full.ini /app/frp && \
  rm -rf /tmp/frp /tmp/frp.tar.gz
 
-
-COPY frpc.ini /app/frp/
-
 VOLUME [ "/data" ]
 
 ENTRYPOINT [ "/entrypoint.sh" ]
