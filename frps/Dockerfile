@@ -24,8 +24,9 @@ RUN \
     /tmp/frp.tar.gz -C \
     /tmp/frp --strip-components=1 && \
  mv /tmp/frp/frps /app/frp/bin && \
- mv /tmp/frp/frps.ini /tmp/frp/frps_full.ini /app/frp && \
  rm -rf /tmp/frp /tmp/frp.tar.gz
+
+COPY frps.ini /app/frp
 
 VOLUME [ "/data" ]
 
