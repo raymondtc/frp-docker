@@ -60,7 +60,7 @@ jobs:
         uses: peter-evans/dockerhub-description@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ env.DOCKERHUB_REPO_FRPS }}
           readme-filepath: ./frps/README.md
         if: ${{ env.frps_tag_exists != '1' }}  
@@ -108,7 +108,7 @@ jobs:
         uses: peter-evans/dockerhub-description@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ env.DOCKERHUB_REPO_FRPC }}
           readme-filepath: ./frpc/README.md
         if: ${{ env.frpc_tag_exists != '1' }}
