@@ -2,7 +2,7 @@ FROM ubuntu:focal
 
 LABEL maintainer="raymondtc"
 
-ARG FRP_VERSION=0.36.2
+ARG FRP_VERSION=
 
 ENV DEBIAN_FRONTEND=noninteractive
 

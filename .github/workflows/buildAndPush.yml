@@ -47,7 +47,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: frps
-          build-args:
+          build-args: |
+            FRP_VERSION=${{ env.frp_version }}
           tags: |
             ${{ env.DOCKERHUB_REPO_FRPS }}:latest
             ${{ env.DOCKERHUB_REPO_FRPS }}:${{ env.frp_version }}
