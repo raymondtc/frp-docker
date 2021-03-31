@@ -14,8 +14,8 @@ env:
   DOCKERHUB_REPO_FRPC: raymond17/frpc
 
 jobs:   
-  push_to_registries:
-    name: Push Docker image to multiple registries
+  push_to_registries_frps:
+    name: Push Frps Docker image to multiple registries
     runs-on: ubuntu-latest
     steps:
       - name: Get frp latest version and check if tag exists
@@ -24,12 +24,10 @@ jobs:
           echo "frp_version=${FRP_VERSION}" >> $GITHUB_ENV
           TOKEN=$( curl -sSLd "username=${{ secrets.DOCKERHUB_USERNAME }}&password=${{ secrets.DOCKERHUB_TOKEN }}" https://hub.docker.com/v2/users/login | jq -r ".token" )
           FRPS_TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPS }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
-          FRPC_TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPC }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
           echo "frps_tag_exists=$FRPS_TAG_EXISTS" >> $GITHUB_ENV
-          echo "frpc_tag_exists=$FRPC_TAG_EXISTS" >> $GITHUB_ENV
       - name: Check out the repo
         uses: actions/checkout@v2
-        if: ${{ env.frps_tag_exists != '1' || env.frpc_tag_exists != '1' }}
+        if: ${{ env.frps_tag_exists != '1' }}
       - name: Test
         run: env
       - name: Login to DockerHub
@@ -37,14 +35,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        if: ${{ env.frps_tag_exists != '1' || env.frpc_tag_exists != '1' }}
+        if: ${{ env.frps_tag_exists != '1' || }}
       - name: Login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ env.frps_tag_exists != '1' || env.frpc_tag_exists != '1' }}
+        if: ${{ env.frps_tag_exists != '1' || }}
       - name: Build and Push Frps
         uses: docker/build-push-action@v2
         with:
@@ -58,6 +56,41 @@ jobs:
             ghcr.io/raymondtc/frps:${{ env.frp_version }}
           push: true
         if: ${{ env.frps_tag_exists != '1' }}
+      - name: Frps Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ env.DOCKERHUB_REPO_FRPS }}
+          readme-filepath: ./frps/README.md
+        if: ${{ env.frps_tag_exists != '1' }}  
+  push_to_registries_frpc:
+    name: Push Frpc Docker image to multiple registries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get frp latest version and check if tag exists
+        run: |
+          FRP_VERSION=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep -oP '"tag_name": "v\K(.*)(?=")')
+          echo "frp_version=${FRP_VERSION}" >> $GITHUB_ENV
+          TOKEN=$( curl -sSLd "username=${{ secrets.DOCKERHUB_USERNAME }}&password=${{ secrets.DOCKERHUB_TOKEN }}" https://hub.docker.com/v2/users/login | jq -r ".token" )
+          FRPC_TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPC }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
+          echo "frpc_tag_exists=$FRPC_TAG_EXISTS" >> $GITHUB_ENV
+      - name: Check out the repo
+        uses: actions/checkout@v2
+        if: ${{ env.frpc_tag_exists != '1' }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        if: ${{ env.frpc_tag_exists != '1' }}
+      - name: Login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ env.frpc_tag_exists != '1' }}
       - name: Build and Push Frpc
         uses: docker/build-push-action@v2
         with:
@@ -71,14 +104,6 @@ jobs:
             ghcr.io/raymondtc/frpc:${{ env.frp_version }}
           push: true
         if: ${{ env.frpc_tag_exists != '1' }}
-      - name: Frps Docker Hub Description
-        uses: peter-evans/dockerhub-description@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: ${{ env.DOCKERHUB_REPO_FRPS }}
-          readme-filepath: ./frps/README.md
-        if: ${{ env.frps_tag_exists != '1' }}
       - name: Frpc Docker Hub Description
         uses: peter-evans/dockerhub-description@v2
         with:
