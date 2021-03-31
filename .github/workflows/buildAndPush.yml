@@ -23,11 +23,13 @@ jobs:
           FRP_VERSION=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep -oP '"tag_name": "v\K(.*)(?=")')
           echo "frp_version=${FRP_VERSION}" >> $GITHUB_ENV
           TOKEN=$( curl -sSLd "username=${{ secrets.DOCKERHUB_USERNAME }}&password=${{ secrets.DOCKERHUB_TOKEN }}" https://hub.docker.com/v2/users/login | jq -r ".token" )
-          TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPS }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
-          echo "tag_exists=$TAG_EXISTS" >> $GITHUB_ENV
+          FRPS_TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPS }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
+          FRPC_TAG_EXISTS=$(curl -sH "Authorization: JWT $TOKEN" "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO_FRPC }}/tags/${FRP_VERSION}/" | jq . | grep tag_status | grep active | wc -l)
+          echo "frps_tag_exists=$FRPS_TAG_EXISTS" >> $GITHUB_ENV
+          echo "frpc_tag_exists=$FRPC_TAG_EXISTS" >> $GITHUB_ENV
       - name: Check out the repo
         uses: actions/checkout@v2
-        if: ${{ env.tag_exists != '1' }}
+        if: ${{ env.frps_tag_exists != '1' || env.frpc_tag_exists != '1' }}
       - name: Test
         run: env
       - name: Login to DockerHub
@@ -35,15 +37,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        if: ${{ env.tag_exists != '1' }}
+        if: ${{ env.frps_tag_exists != '1' || env.frpc_tag_exists != '1' }}
       - name: Login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ env.tag_exists != '1' }}
-      - name: Build and Push
+        if: ${{ env.frps_tag_exists != '1' || env.frpc_tag_exists != '1' }}
+      - name: Build and Push Frps
         uses: docker/build-push-action@v2
         with:
           context: frps
@@ -55,4 +57,17 @@ jobs:
             ghcr.io/raymondtc/frps:latest
             ghcr.io/raymondtc/frps:${{ env.frp_version }}
           push: true
-        if: ${{ env.tag_exists != '1' }}
+        if: ${{ env.frps_tag_exists != '1' }}
+      - name: Build and Push Frpc
+        uses: docker/build-push-action@v2
+        with:
+          context: frpc
+          build-args: |
+            FRP_VERSION=${{ env.frp_version }}
+          tags: |
+            ${{ env.DOCKERHUB_REPO_FRPC }}:latest
+            ${{ env.DOCKERHUB_REPO_FRPC }}:${{ env.frp_version }}
+            ghcr.io/raymondtc/frpc:latest
+            ghcr.io/raymondtc/frpc:${{ env.frp_version }}
+          push: true
+        if: ${{ env.frpc_tag_exists != '1' }}

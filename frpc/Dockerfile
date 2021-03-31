@@ -23,12 +23,15 @@ RUN \
  tar xf \
     /tmp/frp.tar.gz -C \
     /tmp/frp --strip-components=1 && \
- mv /tmp/frp/frps /app/frp/bin && \
- mv /tmp/frp/frps.ini /tmp/frp/frps_full.ini /app/frp && \
+ mv /tmp/frp/frpc /app/frp/bin && \
+ mv /tmp/frp/frpc.ini /tmp/frp/frpc_full.ini /app/frp && \
  rm -rf /tmp/frp /tmp/frp.tar.gz
+
+
+COPY frpc.ini /app/frp/
 
 VOLUME [ "/data" ]
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-CMD [ "/app/frp/bin/frps", "-c", "/data/frps.ini" ]
+CMD [ "/app/frp/bin/frpc", "-c", "/data/frpc.ini" ]
