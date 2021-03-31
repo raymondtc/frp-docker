@@ -13,7 +13,7 @@ RUN \
  echo "**** install packages ****" && \
  apt-get update && \
  apt-get install -y \
-    curl && \
+    tzdata curl && \
     rm -rf /var/lib/apt/lists/* && \
  echo "**** install frp ****" && \
  mkdir -p /app/frp/bin /tmp/frp && \

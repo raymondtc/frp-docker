@@ -23,6 +23,7 @@ services:
     container_name: frpc
     network_mode: host
     environment:
+      - TZ=Asia/Shanghai
         # frpc.ini server_addr
       - FRP_SERVER_ADDR=127.0.0.1
         # frps.ini server_port

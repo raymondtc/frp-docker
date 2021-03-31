@@ -23,6 +23,7 @@ services:
     container_name: frps
     network_mode: host
     environment:
+      - TZ=Asia/Shanghai
         # frps.ini bind_addr
       - FRP_BIND_ADDR=0.0.0.0
         # frps.ini bind_port
